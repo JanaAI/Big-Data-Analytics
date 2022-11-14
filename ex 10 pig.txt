@@ -1,0 +1,54 @@
+start-all.sh
+jps
+hadoop fs -mkdir hdfs://localhost:9000/ex10
+hadoop fs -put 'home/hadoop/student_details.txt' /ex10
+pig -x local
+
+student_details = LOAD 'hdfs://localhost:9000/ex10/student_details.txt' USING PigStorage(',') as (id:int, firstname:chararray, lastname:chararray,age:int, phone:chararray, city:chararray);
+
+order_by_data = ORDER student_details BY age DESC;
+
+Dump order_by_data;
+
+group_data = GROUP student_details by age; 
+
+Dump group_data;
+
+orders = LOAD 'hdfs://localhost:9000/ex10/orders.txt' USING PigStorage(',') as (oid:int, date:chararray, customer_id:int, amount:int);
+
+customers = LOAD 'hdfs://localhost:9000/ex10/customers.txt' USING PigStorage(',') as (id:int, name:chararray, age:int,address:chararray, salary:int);
+
+customers_orders = JOIN customers BY id, orders BY customer_id;
+
+Dump coustomer_orders;
+
+foreach_data = FOREACH student_details GENERATE id,age,city;
+
+Dump foreach_data;
+
+filter_data = FILTER student_details BY city == 'Chennai';
+
+Dump filter_data;
+
+customers1 = LOAD 'hdfs://localhost:9000/ex10/customers.txt' USING PigStorage(',') as (id:int, name:chararray, age:int, address:chararray, salary:int);
+
+customers2 = LOAD 'hdfs://localhost:9000/ex10/customers.txt' USING PigStorage(',') as (id:int, name:chararray, age:int, address:chararray, salary:int);
+
+customers3 = JOIN customers1 BY id, customers2 BY id;
+
+customer_orders = JOIN customers BY id, orders BY customer_id;
+
+Dump customer_orders;
+
+outer_left = JOIN customers BY id LEFT OUTER, orders BY customer_id;
+
+Dump outer_left;
+
+outer_right = JOIN customers BY id RIGHT, orders BY customer_id;
+
+Dump outer_right;
+
+outer_full = JOIN customers BY id FULL OUTER, orders BY customer_id;
+
+Dump outer_full;
+
